@@ -1,2 +1,6 @@
-<app-person-input (personCreate)="onPersonCreated($event)"></app-person-input>
-<h1 *ngFor="let person of personList">{{ person }}</h1>
+<p *ngIf="isFetching">Loading...</p>
+<div *ngIf="!isFetching">
+  <h1 *ngFor="let person of personList" (click)="onRemovePerson(person)">
+    {{ person }}
+  </h1>
+</div>
