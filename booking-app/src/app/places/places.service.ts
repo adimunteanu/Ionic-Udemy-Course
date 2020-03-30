@@ -17,7 +17,7 @@ export class PlacesService {
       'p2', 
       'L\'Amour Toujours', 
       'Romantic place in Paris.',
-      'https://lh3.googleusercontent.com/proxy/94fpp8yG0ugfJaJpZOfRWoM3XlzXKwz5XTHU5mrC8CCkhsrep3qzriR4x-HPGN0ACzayPXF1ldRIkTnXM0y1rxYje12aAAh4stMYxY9WezDReQFqfz78d_NF0Jxi4pYxlbcLMmllwTA',
+      'https://i.pinimg.com/originals/a9/45/72/a945725c0dc12770bb831e8d9fbc2fe6.png',
       189.99
     ),
     new Place(
