@@ -12,7 +12,9 @@ export class PlacesService {
       'In the heart of New York City.',
       'https://static.mansionglobal.com/production/media/article-images/8b6775fa0db27ccc4a5aa3fe8d13f8cc/large_053.jpg',
       149.99,
-      'abc'
+      'abc',
+      new Date('2019-01-01'),
+      new Date('2019-12-31')
     ),
     new Place(
       'p2',
@@ -20,7 +22,9 @@ export class PlacesService {
       'Romantic place in Paris.',
       'https://i.pinimg.com/originals/a9/45/72/a945725c0dc12770bb831e8d9fbc2fe6.png',
       189.99,
-      'abc'
+      'abc',
+      new Date('2019-01-01'),
+      new Date('2019-12-31')
     ),
     new Place(
       'p3',
@@ -28,7 +32,9 @@ export class PlacesService {
       'Not your average city trip!',
       'https://data.whicdn.com/images/292751032/original.jpg',
       99.99,
-      'abc'
+      'abc',
+      new Date('2019-01-01'),
+      new Date('2019-12-31')
     )
   ];
 
