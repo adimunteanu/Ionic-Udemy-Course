@@ -3,6 +3,7 @@ import { Place } from './place.model';
 import { AuthService } from '../auth/auth.service';
 import { BehaviorSubject } from 'rxjs';
 import { take, map, tap, delay } from 'rxjs/operators';
+import { isBuffer } from 'util';
 
 @Injectable({
   providedIn: 'root'
@@ -78,6 +79,37 @@ export class PlacesService {
       delay(1000),
       tap(places => {
         this._places.next(places.concat(newPlace));
+      })
+    );
+  }
+
+  updatePlace(placeId: string, title: string, description: string) {
+    return this.places.pipe(
+      take(1),
+      delay(1000),
+      tap(places => {
+        const updatedPlaceIndex = places.findIndex(pl => pl.id === placeId);
+        const updatedPlaces = [...places];
+        const oldPlace = updatedPlaces[updatedPlaceIndex];
+        updatedPlaces[updatedPlaceIndex] = new Place(
+          oldPlace.id,
+          title,
+          description,
+          oldPlace.imageUrl,
+          oldPlace.price,
+          oldPlace.availableFrom,
+          oldPlace.availableTo,
+          oldPlace.userId
+        );
+        this._places.next(updatedPlaces);
+        // This here was my approach. I'll use his approach just to be safe
+        // this._places.next(places.map(place => {
+        //   if (place.id === placeId) {
+        //     place.title = title;
+        //     place.description = description;
+        //   }
+        //   return place;
+        // }));
       })
     );
   }
