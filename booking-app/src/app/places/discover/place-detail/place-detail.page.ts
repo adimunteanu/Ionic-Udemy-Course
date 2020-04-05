@@ -1,17 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { NavController, ModalController, ActionSheetController } from '@ionic/angular';
 import { Place } from '../../place.model';
 import { ActivatedRoute } from '@angular/router';
 import { PlacesService } from '../../places.service';
 import { CreateBookingComponent } from 'src/app/bookings/create-booking/create-booking.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-place-detail',
   templateUrl: './place-detail.page.html',
   styleUrls: ['./place-detail.page.scss'],
 })
-export class PlaceDetailPage implements OnInit {
+export class PlaceDetailPage implements OnInit, OnDestroy {
   loadedPlace: Place;
+  private placeSub: Subscription;
 
   constructor(
     private navCtrl: NavController,
@@ -23,11 +25,13 @@ export class PlaceDetailPage implements OnInit {
 
   ngOnInit() {
     this.route.paramMap.subscribe(paramMap => {
-      if(!paramMap.has('placeId')){
+      if (!paramMap.has('placeId')) {
         this.navCtrl.navigateBack('/places/tabs/discover');
         return;
       }
-      this.loadedPlace = this.placesService.getPlace(paramMap.get('placeId'));
+      this.placeSub = this.placesService.getPlace(paramMap.get('placeId')).subscribe(place => {
+        this.loadedPlace = place;
+      });
     });
   }
 
@@ -35,7 +39,7 @@ export class PlaceDetailPage implements OnInit {
     // this.router.navigateByUrl('/places/tabs/discover');
     // this.navCtrl.navigateBack('/places/tabs/discover');
     this.actionSheetCtrl
-      .create({ 
+      .create({
         header: 'Choose an action',
         buttons: [
           {
@@ -55,7 +59,7 @@ export class PlaceDetailPage implements OnInit {
             role: 'cancel'
           }
         ]
-       })
+      })
       .then(actionSheetEl => {
         actionSheetEl.present();
       });
@@ -64,22 +68,28 @@ export class PlaceDetailPage implements OnInit {
   openBookingModal(mode: 'select' | 'random') {
     console.log(mode);
     this.modalCtrl
-      .create({ 
-        component: CreateBookingComponent, 
+      .create({
+        component: CreateBookingComponent,
         componentProps: {
           selectedPlace: this.loadedPlace,
           selectedMode: mode
-        }})
+        }
+      })
       .then(modalEl => {
         modalEl.present();
         return modalEl.onDidDismiss();
       })
-      .then(resultData =>{
+      .then(resultData => {
         console.log(resultData.data, resultData.role);
-        if(resultData.role === 'confirm'){
+        if (resultData.role === 'confirm') {
           console.log('BOOKED!');
         }
       });
   }
 
+  ngOnDestroy() {
+    if (this.placeSub) {
+      this.placeSub.unsubscribe();
+    }
+  }
 }
