@@ -4,6 +4,7 @@ import { Place } from '../place.model';
 import { MenuController } from '@ionic/angular';
 import { SegmentChangeEventDetail } from '@ionic/core';
 import { Subscription } from 'rxjs';
+import { AuthService } from 'src/app/auth/auth.service';
 
 @Component({
   selector: 'app-discover',
@@ -13,14 +14,17 @@ import { Subscription } from 'rxjs';
 export class DiscoverPage implements OnInit, OnDestroy {
   loadedPlaces: Place[];
   private placesSub: Subscription;
+  public relevantPlaces: Place[];
   constructor(
     private placesService: PlacesService,
-    private menuCtrl: MenuController
+    private menuCtrl: MenuController,
+    private authService: AuthService
   ) { }
 
   ngOnInit() {
     this.placesSub = this.placesService.places.subscribe(places => {
       this.loadedPlaces = places;
+      this.relevantPlaces = this.loadedPlaces;
     });
   }
 
@@ -28,11 +32,18 @@ export class DiscoverPage implements OnInit, OnDestroy {
   //   this.menuCtrl.open();
   // }
   onFilterUpdate(event: CustomEvent<SegmentChangeEventDetail>) {
+    if (event.detail.value === 'all') {
+      this.relevantPlaces = this.loadedPlaces;
+    } else {
+      this.relevantPlaces = this.loadedPlaces.filter(
+        pl => pl.userId !== this.authService.userId
+      );
+    }
     console.log(event.detail);
   }
 
   ngOnDestroy() {
-    if(this.placesSub){
+    if (this.placesSub) {
       this.placesSub.unsubscribe();
     }
   }
