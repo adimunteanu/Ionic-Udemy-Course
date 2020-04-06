@@ -1,10 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { NavController, ModalController, ActionSheetController } from '@ionic/angular';
+import { NavController, ModalController, ActionSheetController, LoadingController } from '@ionic/angular';
 import { Place } from '../../place.model';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { PlacesService } from '../../places.service';
 import { CreateBookingComponent } from 'src/app/bookings/create-booking/create-booking.component';
 import { Subscription } from 'rxjs';
+import { BookingService } from 'src/app/bookings/booking.service';
 
 @Component({
   selector: 'app-place-detail',
@@ -20,7 +21,10 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private placesService: PlacesService,
     private modalCtrl: ModalController,
-    private actionSheetCtrl: ActionSheetController
+    private actionSheetCtrl: ActionSheetController,
+    private bookingService: BookingService,
+    private loadingCtrl: LoadingController,
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -80,10 +84,26 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
         return modalEl.onDidDismiss();
       })
       .then(resultData => {
-        console.log(resultData.data, resultData.role);
-        if (resultData.role === 'confirm') {
-          console.log('BOOKED!');
-        }
+        console.log(resultData.data.bookingData, resultData.role);
+        this.loadingCtrl.create({
+          message: "Booking place...",
+        }).then(loadingEl => {
+          loadingEl.present();
+          this.bookingService.addBooking(
+            this.loadedPlace.id,
+            this.loadedPlace.title,
+            this.loadedPlace.imageUrl,
+            resultData.data.bookingData['firstName'],
+            resultData.data.bookingData['lastName'],
+            resultData.data.bookingData['guestNumber'],
+            resultData.data.bookingData['startDate'],
+            resultData.data.bookingData['endDate']
+          ).subscribe(() => {
+            loadingEl.dismiss();
+            console.log('BOOKED!');
+            this.router.navigateByUrl('/bookings');
+          });
+        })
       });
   }
 
