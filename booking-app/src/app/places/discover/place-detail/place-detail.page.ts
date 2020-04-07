@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { NavController, ModalController, ActionSheetController, LoadingController } from '@ionic/angular';
+import { NavController, ModalController, ActionSheetController, LoadingController, AlertController } from '@ionic/angular';
 import { Place } from '../../place.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PlacesService } from '../../places.service';
@@ -16,6 +16,7 @@ import { AuthService } from 'src/app/auth/auth.service';
 export class PlaceDetailPage implements OnInit, OnDestroy {
   loadedPlace: Place;
   isBookable = false;
+  isLoading = false;
   private placeSub: Subscription;
 
   constructor(
@@ -27,7 +28,8 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
     private bookingService: BookingService,
     private loadingCtrl: LoadingController,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private alertCtrl: AlertController
   ) { }
 
   ngOnInit() {
@@ -36,11 +38,23 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
         this.navCtrl.navigateBack('/places/tabs/discover');
         return;
       }
+      this.isLoading = true;
       this.placeSub = this.placesService
         .getPlace(paramMap.get('placeId'))
         .subscribe(place => {
           this.loadedPlace = place;
           this.isBookable = this.loadedPlace.userId !== this.authService.userId;
+          this.isLoading = false;
+        }, error => {
+          this.alertCtrl.create({
+            header: 'An error occured...',
+            message: 'Could not load place, please try again later',
+            buttons: [{ text: 'Okay', handler: () => {
+              this.router.navigate(['/places/tabs/discover']);
+            } }]
+          }).then(alertEl => {
+            alertEl.present();
+          })
         });
     });
   }

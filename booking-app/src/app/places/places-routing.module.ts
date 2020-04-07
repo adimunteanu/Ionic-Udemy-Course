@@ -4,7 +4,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { PlacesPage } from './places.page';
 import { NewOfferPageModule } from './offers/new-offer/new-offer.module';
 import { EditOfferPageModule } from './offers/edit-offer/edit-offer.module';
-import { OfferBookingsPageModule } from './offers/offer-bookings/offer-bookings.module';
+
 
 const routes: Routes = [
   {
@@ -38,10 +38,6 @@ const routes: Routes = [
           {
             path: 'edit/:placeId',
             loadChildren: () => import('./offers/edit-offer/edit-offer.module').then( m => EditOfferPageModule)
-          },
-          {
-            path: ':placeId',
-            loadChildren: () => import('./offers/offer-bookings/offer-bookings.module').then( m => OfferBookingsPageModule)
           }
         ]
       },
