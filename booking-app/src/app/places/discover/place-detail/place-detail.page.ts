@@ -84,26 +84,28 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
         return modalEl.onDidDismiss();
       })
       .then(resultData => {
-        console.log(resultData.data.bookingData, resultData.role);
-        this.loadingCtrl.create({
-          message: "Booking place...",
-        }).then(loadingEl => {
-          loadingEl.present();
-          this.bookingService.addBooking(
-            this.loadedPlace.id,
-            this.loadedPlace.title,
-            this.loadedPlace.imageUrl,
-            resultData.data.bookingData['firstName'],
-            resultData.data.bookingData['lastName'],
-            resultData.data.bookingData['guestNumber'],
-            resultData.data.bookingData['startDate'],
-            resultData.data.bookingData['endDate']
-          ).subscribe(() => {
-            loadingEl.dismiss();
-            console.log('BOOKED!');
-            this.router.navigateByUrl('/bookings');
-          });
-        })
+        if (resultData.role === 'confirm') {
+          this.loadingCtrl.create({
+            message: "Booking place...",
+          }).then(loadingEl => {
+            loadingEl.present();
+            const data = resultData.data.bookingData;
+            this.bookingService.addBooking(
+              this.loadedPlace.id,
+              this.loadedPlace.title,
+              this.loadedPlace.imageUrl,
+              data.firstName,
+              data.lastName,
+              data.guestNumber,
+              data.startDate,
+              data.endDate
+            ).subscribe(() => {
+              loadingEl.dismiss();
+              console.log('BOOKED!');
+              this.router.navigateByUrl('/bookings');
+            });
+          })
+        }
       });
   }
 
