@@ -17,9 +17,15 @@
 <ion-content>
   <ion-grid>
     <ion-row>
-      <ion-col size="12" size-sm="8" offset-sm="2" class="ion-text-center"> 
-        <ion-card>
-          <ion-list>
+      <ion-col size="12" size-sm="8" offset-sm="2"> 
+          <div class="ion-text-center">
+            <ion-spinner color="primary" *ngIf="isLoading"></ion-spinner>
+          </div>
+          <div class="ion-text-center" *ngIf="!isLoading && loadedOffers.length <= 0">
+            <p>No offers found! Please create one first!</p>
+            <ion-button color="primary" routerLink="/places/tabs/offers/new">Offer New Place</ion-button>
+          </div>
+          <ion-list *ngIf="!isLoading && loadedOffers.length > 0">
             <ion-item-sliding *ngFor="let offer of loadedOffers" #slidingItem>
               <app-offer-item [offer]="offer"></app-offer-item>
               <ion-item-options>
@@ -32,7 +38,6 @@
               </ion-item-options>
             </ion-item-sliding>
           </ion-list>
-        </ion-card>
       </ion-col>
     </ion-row>
   </ion-grid>
