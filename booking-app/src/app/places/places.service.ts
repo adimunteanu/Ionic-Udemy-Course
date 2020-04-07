@@ -135,19 +135,14 @@ export class PlacesService {
           this._places.next(places.concat(newPlace));
         })
       );
-    // return this.places.pipe(
-    //   take(1),
-    //   delay(1000),
-    // );
   }
 
   updatePlace(placeId: string, title: string, description: string) {
+    let updatedPlaces: Place[];
     return this.places.pipe(
-      take(1),
-      delay(1000),
-      tap(places => {
+      take(1), switchMap(places => {
         const updatedPlaceIndex = places.findIndex(pl => pl.id === placeId);
-        const updatedPlaces = [...places];
+        updatedPlaces = [...places];
         const oldPlace = updatedPlaces[updatedPlaceIndex];
         updatedPlaces[updatedPlaceIndex] = new Place(
           oldPlace.id,
@@ -159,15 +154,13 @@ export class PlacesService {
           oldPlace.availableTo,
           oldPlace.userId
         );
+        return this.http.put(
+          `https://ionic-angular-booking-ap-5f860.firebaseio.com/offered-places/${placeId}.json`,
+          { ...updatedPlaces[updatedPlaceIndex], id: null }
+        );
+      }),
+      tap(() => {
         this._places.next(updatedPlaces);
-        // This here was my approach. I'll use his approach just to be safe
-        // this._places.next(places.map(place => {
-        //   if (place.id === placeId) {
-        //     place.title = title;
-        //     place.description = description;
-        //   }
-        //   return place;
-        // }));
       })
     );
   }
