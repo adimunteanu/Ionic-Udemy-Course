@@ -44,7 +44,7 @@ interface PlaceData {
 	availableTo: string;
 	description: string;
 	imageUrl: string;
-	price: 1212;
+	price: number;
 	title: string;
 	userId: string;
 }
