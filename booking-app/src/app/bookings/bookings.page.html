@@ -17,7 +17,7 @@
         size="12"
         size-md="6"
         offset-md="3"
-        *ngIf="!loadedBookings || loadedBookings.length <= 0"
+        *ngIf="!isLoading && (!loadedBookings || loadedBookings.length <= 0)"
         class="ion-text-center"
       >
         <p>No bookings found</p>
@@ -34,10 +34,12 @@
             #slidingBooking
           >
             <ion-item>
+              <ion-avatar slot="start">
+                <ion-img [src]="booking.placeImage"></ion-img>
+              </ion-avatar>
               <ion-label>
                 <h5>{{ booking.placeTitle }}</h5>
-                <h5>{{ booking.firstName }}</h5>
-                <p>{{ booking.guestNumber }}</p>
+                <p>Guests: {{ booking.guestNumber }}</p>
               </ion-label>
             </ion-item>
             <ion-item-options>

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Booking } from './booking.model';
 import { BehaviorSubject } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
-import { take, delay, tap, switchMap, map } from 'rxjs/operators';
+import { take, tap, switchMap, map } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 
 interface BookingData {
@@ -74,26 +74,24 @@ export class BookingService {
 
     fetchBookings() {
         return this.http
-            .get<{ [key: string]: BookingData }>('https://ionic-angular-booking-ap-5f860.firebaseio.com/bookings.json')
+            .get<{ [key: string]: BookingData }>(`https://ionic-angular-booking-ap-5f860.firebaseio.com/bookings.json?orderBy="userId"&equalTo="${this.authService.userId}"`)
             .pipe(
                 map(resData => {
                     const bookings = [];
-                    for(const key in resData) {
-                        if(resData.hasOwnProperty(key)) {
-                            if(resData[key].userId === this.authService.userId) {
-                                bookings.push(new Booking(
-                                    key,
-                                    resData[key].placeId,
-                                    resData[key].userId,
-                                    resData[key].placeTitle,
-                                    resData[key].placeImage,
-                                    resData[key].firstName,
-                                    resData[key].lastName,
-                                    resData[key].guestNumber,
-                                    new Date(resData[key].bookedFrom),
-                                    new Date(resData[key].bookedTo)
-                                ));
-                            }
+                    for (const key in resData) {
+                        if (resData.hasOwnProperty(key)) {
+                            bookings.push(new Booking(
+                                key,
+                                resData[key].placeId,
+                                resData[key].userId,
+                                resData[key].placeTitle,
+                                resData[key].placeImage,
+                                resData[key].firstName,
+                                resData[key].lastName,
+                                resData[key].guestNumber,
+                                new Date(resData[key].bookedFrom),
+                                new Date(resData[key].bookedTo)
+                            ));
                         }
                     }
                     return bookings;
@@ -105,13 +103,16 @@ export class BookingService {
     }
 
     cancelBooking(bookingId: string) {
-        return this.http.delete(`https://ionic-angular-booking-ap-5f860.firebaseio.com/bookings/${bookingId}.json`);
-        // return this.bookings.pipe(
-        //     take(1),
-        //     delay(1000),
-        //     tap(bookings => {
-        //         this._bookings.next(bookings.filter(b => b.id !== bookingId));
-        //     })
-        // );
+        return this.http
+            .delete(`https://ionic-angular-booking-ap-5f860.firebaseio.com/bookings/${bookingId}.json`)
+            .pipe(
+                switchMap(() => {
+                    return this.bookings;
+                }),
+                take(1),
+                tap(bookings => {
+                    this._bookings.next(bookings.filter(b => b.id !== bookingId));
+                })
+            );
     }
 }
