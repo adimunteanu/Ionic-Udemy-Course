@@ -105,12 +105,13 @@ export class BookingService {
     }
 
     cancelBooking(bookingId: string) {
-        return this.bookings.pipe(
-            take(1),
-            delay(1000),
-            tap(bookings => {
-                this._bookings.next(bookings.filter(b => b.id !== bookingId));
-            })
-        );
+        return this.http.delete(`https://ionic-angular-booking-ap-5f860.firebaseio.com/bookings/${bookingId}.json`);
+        // return this.bookings.pipe(
+        //     take(1),
+        //     delay(1000),
+        //     tap(bookings => {
+        //         this._bookings.next(bookings.filter(b => b.id !== bookingId));
+        //     })
+        // );
     }
 }

@@ -108,12 +108,6 @@ export class PlacesService {
 						placeData.userId)
 				})
 			);
-		return this.places.pipe(
-			take(1),
-			map(places => {
-				return { ...places.find(p => p.id === id) };
-			})
-		);
 	}
 
 	addPlace(

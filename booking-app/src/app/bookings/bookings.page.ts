@@ -37,6 +37,7 @@ export class BookingsPage implements OnInit, OnDestroy {
     this.loadingCtrl.create({ message: 'Canceling booking...' }).then(loadingEl => {
       loadingEl.present();
       this.bookingService.cancelBooking(bookingId).subscribe(() => {
+        this.bookingService.fetchBookings().subscribe();
         loadingEl.dismiss();
       });
     })
