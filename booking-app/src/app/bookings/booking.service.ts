@@ -2,7 +2,20 @@ import { Injectable } from '@angular/core';
 import { Booking } from './booking.model';
 import { BehaviorSubject } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
-import { take, delay, tap } from 'rxjs/operators';
+import { take, tap, switchMap, map } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+
+interface BookingData {
+    bookedFrom: string;
+    bookedTo: string;
+    firstName: string;
+    guestNumber: number;
+    lastName: string;
+    placeId: string;
+    placeImage: string;
+    placeTitle: string;
+    userId: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class BookingService {
@@ -12,7 +25,10 @@ export class BookingService {
         return this._bookings.asObservable();
     }
 
-    constructor(private authService: AuthService) { }
+    constructor(
+        private authService: AuthService,
+        private http: HttpClient
+    ) { }
 
     addBooking(
         placeId: string,
@@ -24,6 +40,7 @@ export class BookingService {
         dateFrom: Date,
         dateTo: Date
     ) {
+        let generatedId: string;
         const newBooking = new Booking(
             Math.random().toString(),
             placeId,
@@ -37,22 +54,65 @@ export class BookingService {
             dateTo
         );
 
-        return this.bookings.pipe(
-            take(1),
-            delay(1000),
-            tap(bookings => {
-                this._bookings.next(bookings.concat(newBooking));
+        return this.http
+            .post<{ name: string }>('https://ionic-angular-booking-ap-5f860.firebaseio.com/bookings.json', {
+                ...newBooking,
+                id: null
             })
-        );
+            .pipe(
+                switchMap(resData => {
+                    generatedId = resData.name;
+                    return this.bookings;
+                }),
+                take(1),
+                tap(bookings => {
+                    newBooking.id = generatedId;
+                    return this._bookings.next(bookings.concat(newBooking));
+                })
+            );
+    }
+
+    fetchBookings() {
+        return this.http
+            .get<{ [key: string]: BookingData }>(`https://ionic-angular-booking-ap-5f860.firebaseio.com/bookings.json?orderBy="userId"&equalTo="${this.authService.userId}"`)
+            .pipe(
+                map(resData => {
+                    const bookings = [];
+                    for (const key in resData) {
+                        if (resData.hasOwnProperty(key)) {
+                            bookings.push(new Booking(
+                                key,
+                                resData[key].placeId,
+                                resData[key].userId,
+                                resData[key].placeTitle,
+                                resData[key].placeImage,
+                                resData[key].firstName,
+                                resData[key].lastName,
+                                resData[key].guestNumber,
+                                new Date(resData[key].bookedFrom),
+                                new Date(resData[key].bookedTo)
+                            ));
+                        }
+                    }
+                    return bookings;
+                }),
+                tap(bookings => {
+                    this._bookings.next(bookings);
+                })
+            );
     }
 
     cancelBooking(bookingId: string) {
-        return this.bookings.pipe(
-            take(1),
-            delay(1000),
-            tap(bookings => {
-                this._bookings.next(bookings.filter(b => b.id !== bookingId));
-            })
-        );
+        return this.http
+            .delete(`https://ionic-angular-booking-ap-5f860.firebaseio.com/bookings/${bookingId}.json`)
+            .pipe(
+                switchMap(() => {
+                    return this.bookings;
+                }),
+                take(1),
+                tap(bookings => {
+                    this._bookings.next(bookings.filter(b => b.id !== bookingId));
+                })
+            );
     }
 }
