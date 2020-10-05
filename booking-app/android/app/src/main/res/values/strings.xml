@@ -2,6 +2,6 @@
 <resources>
     <string name="app_name">booking-app</string>
     <string name="title_activity_main">booking-app</string>
-    <string name="package_name">io.ionic.starter</string>
-    <string name="custom_url_scheme">io.ionic.starter</string>
+    <string name="package_name">com.adrianmunteanu.bookingapp</string>
+    <string name="custom_url_scheme">com.adrianmunteanu.bookingapp</string>
 </resources>
