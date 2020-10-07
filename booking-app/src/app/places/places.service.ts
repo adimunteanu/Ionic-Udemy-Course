@@ -109,19 +109,30 @@ export class PlacesService {
 			);
 	}
 
+	uploadImage(image: File) {
+		const uploadData = new FormData();
+		uploadData.append('image', image);
+
+		return this.http.post<{ imageUrl: string, imagePath: string }>(
+			'https://us-central1-ionic-angular-booking-ap-5f860.cloudfunctions.net/storeImage',
+			uploadData
+		);
+	}
+
 	addPlace(
 		title: string,
 		description: string,
 		price: number,
 		dateFrom: Date,
-		dateTo: Date
+		dateTo: Date,
+		imageUrl: string
 	) {
 		let generatedId: string;
 		const newPlace = new Place(
 			Math.random.toString(),
 			title,
 			description,
-			'https://data.whicdn.com/images/292751032/original.jpg',
+			imageUrl,
 			price,
 			dateFrom,
 			dateTo,
