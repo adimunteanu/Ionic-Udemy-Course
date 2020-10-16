@@ -41,35 +41,43 @@ export class BookingService {
         dateTo: Date
     ) {
         let generatedId: string;
-        const newBooking = new Booking(
-            Math.random().toString(),
-            placeId,
-            this.authService.userId,
-            placeTitle,
-            placeImage,
-            firstName,
-            lastName,
-            guestNumber,
-            dateFrom,
-            dateTo
-        );
+        let newBooking: Booking;
+        this.authService.userId.pipe(
+            take(1),
+            switchMap(userId => {
+                if (!userId) {
+                    throw new Error('No user id found!');
+                }
 
-        return this.http
-            .post<{ name: string }>('https://ionic-angular-booking-ap-5f860.firebaseio.com/bookings.json', {
-                ...newBooking,
-                id: null
+                newBooking = new Booking(
+                    Math.random().toString(),
+                    placeId,
+                    userId,
+                    placeTitle,
+                    placeImage,
+                    firstName,
+                    lastName,
+                    guestNumber,
+                    dateFrom,
+                    dateTo
+                );
+
+                return this.http
+                    .post<{ name: string }>('https://ionic-angular-booking-ap-5f860.firebaseio.com/bookings.json', {
+                        ...newBooking,
+                        id: null
+                    })
+            }),
+            switchMap(resData => {
+                generatedId = resData.name;
+                return this.bookings;
+            }),
+            take(1),
+            tap(bookings => {
+                newBooking.id = generatedId;
+                return this._bookings.next(bookings.concat(newBooking));
             })
-            .pipe(
-                switchMap(resData => {
-                    generatedId = resData.name;
-                    return this.bookings;
-                }),
-                take(1),
-                tap(bookings => {
-                    newBooking.id = generatedId;
-                    return this._bookings.next(bookings.concat(newBooking));
-                })
-            );
+        );
     }
 
     fetchBookings() {
