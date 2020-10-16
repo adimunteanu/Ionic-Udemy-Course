@@ -7,6 +7,7 @@ import { CreateBookingComponent } from 'src/app/bookings/create-booking/create-b
 import { Subscription } from 'rxjs';
 import { BookingService } from 'src/app/bookings/booking.service';
 import { AuthService } from 'src/app/auth/auth.service';
+import { switchMap, take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-place-detail',
@@ -39,19 +40,30 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
         return;
       }
       this.isLoading = true;
-      this.placeSub = this.placesService
-        .getPlace(paramMap.get('placeId'))
+      let fetchedUserId: string;
+      this.authService.userId
+        .pipe(
+          take(1),
+          switchMap(userId => {
+            if (!userId) {
+              throw new Error('Found no user!');
+            }
+            fetchedUserId = userId;
+            return this.placesService.getPlace(paramMap.get('placeId'));
+          }))
         .subscribe(place => {
           this.loadedPlace = place;
-          this.isBookable = this.loadedPlace.userId !== this.authService.userId;
+          this.isBookable = this.loadedPlace.userId !== fetchedUserId;
           this.isLoading = false;
         }, error => {
           this.alertCtrl.create({
             header: 'An error occured...',
             message: 'Could not load place, please try again later',
-            buttons: [{ text: 'Okay', handler: () => {
-              this.router.navigate(['/places/tabs/discover']);
-            } }]
+            buttons: [{
+              text: 'Okay', handler: () => {
+                this.router.navigate(['/places/tabs/discover']);
+              }
+            }]
           }).then(alertEl => {
             alertEl.present();
           })
