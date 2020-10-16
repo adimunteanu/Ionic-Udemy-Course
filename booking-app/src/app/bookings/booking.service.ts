@@ -81,9 +81,15 @@ export class BookingService {
     }
 
     fetchBookings() {
-        return this.http
-            .get<{ [key: string]: BookingData }>(`https://ionic-angular-booking-ap-5f860.firebaseio.com/bookings.json?orderBy="userId"&equalTo="${this.authService.userId}"`)
+        return this.authService.userId
             .pipe(
+                switchMap(userId => {
+                    if (!userId) {
+                        throw new Error('No user found!');
+                    }
+                    return this.http
+                        .get<{ [key: string]: BookingData }>(`https://ionic-angular-booking-ap-5f860.firebaseio.com/bookings.json?orderBy="userId"&equalTo="${userId}"`)
+                }),
                 map(resData => {
                     const bookings = [];
                     for (const key in resData) {
