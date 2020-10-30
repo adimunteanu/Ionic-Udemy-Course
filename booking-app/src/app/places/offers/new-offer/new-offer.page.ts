@@ -13,7 +13,7 @@ function base64toBlob(base64Data, contentType) {
   const slicesCount = Math.ceil(bytesLength / sliceSize);
   const byteArrays = new Array(slicesCount);
 
-  for (var sliceIndex = 0; sliceIndex < slicesCount; ++sliceIndex) {
+  for (let sliceIndex = 0; sliceIndex < slicesCount; ++sliceIndex) {
     const begin = sliceIndex * sliceSize;
     const end = Math.min(begin + sliceSize, bytesLength);
 

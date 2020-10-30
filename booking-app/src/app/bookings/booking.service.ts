@@ -67,7 +67,7 @@ export class BookingService {
                     dateTo
                 );
                 return this.http.post<{ name: string }>(
-                    `https://ionic-angular-course.firebaseio.com/bookings.json?auth=${token}`,
+                    `https://ionic-angular-booking-ap-5f860.firebaseio.com/bookings.json?auth=${token}`,
                     { ...newBooking, id: null }
                 );
             }),
@@ -82,7 +82,7 @@ export class BookingService {
             })
         );
     }
-    
+
     fetchBookings() {
         let fetchedUserId: string;
         return this.authService.userId.pipe(
